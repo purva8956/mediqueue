@@ -4,3 +4,4 @@ __pycache__/
 hospital.db
 ngrok.exe
 .env
+password.txt
