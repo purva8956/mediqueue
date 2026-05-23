@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration | MediQueue</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background: linear-gradient(rgba(42, 123, 204, 0.85), rgba(32, 127, 222, 0.85)), 
+                        url('https://framerusercontent.com/images/h7TRs8bO5y34bh0lFe5Z9UMGLI.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+        .input-focus:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 font-sans">
+
+    <div class="max-w-md w-full bg-white p-8 rounded-[2.5rem] shadow-2xl border border-blue-100">
+        <header class="mb-8">
+            <h2 class="text-3xl font-black text-slate-800 tracking-tight">Patient Details</h2>
+            <p class="text-slate-500 text-sm">Fill in to generate your smart token.</p>
+        </header>
+
+        <form action="/registration/hospital2026" method="POST" class="space-y-6">
+    <div>
+        <label class="block text-xs font-black text-blue-600 uppercase tracking-widest mb-1">Full Name</label>
+        <input type="text" name="name" required placeholder="Enter Name"
+       class="w-full px-5 py-4 rounded-2xl bg-slate-50 border border-slate-200 outline-none">
+    </div>
+
+    <div class="grid grid-cols-3 gap-4">
+        <div>
+            <label class="block text-xs font-black text-blue-600 uppercase tracking-widest mb-1">Age</label>
+            <input type="number" name="age" required placeholder="25" 
+                   class="w-full px-5 py-4 rounded-2xl bg-slate-50 border border-slate-200 outline-none">
+        </div>
+        <div class="col-span-2">
+            <label class="block text-xs font-black text-blue-600 uppercase tracking-widest mb-1">Department</label>
+            <select name="dept" class="w-full px-5 py-4 rounded-2xl bg-slate-50 border border-slate-200 outline-none appearance-none">
+                <option value="General Medicine">General Medicine</option>
+                <option value="Cardiology">Cardiology</option>
+                <option value="Pediatrics">Pediatrics</option>
+                <option value="Orthopedic">Orthopedic</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="p-5 bg-red-50 rounded-3xl border border-red-100">
+        <label class="block text-[10px] font-black text-red-600 uppercase mb-2">🚨 Case Urgency</label>
+        <select name="emergency_type" class="w-full p-3 bg-white border border-red-200 rounded-xl outline-none font-bold text-red-600">
+            <option value="Normal">None</option>
+            <option value="Heart Attack">Heart Attack (Priority)</option>
+            <option value="Accident">Accident (Priority)</option>
+            <option value="Severe Bleeding">Severe Bleeding (Priority)</option>
+        </select>
+    </div>
+
+    <button type="submit" class="w-full bg-blue-600 text-white font-black py-5 rounded-3xl shadow-xl hover:bg-blue-700 transition-all uppercase tracking-widest">
+        Get My Token
+    </button>
+</form>
+    </div>
+
+    <script>
+        const eSwitch = document.getElementById('eSwitch');
+        const eOptions = document.getElementById('eOptions');
+        const eSection = document.getElementById('emergencySection');
+        const eType = document.getElementById('eType');
+
+        eSwitch.addEventListener('change', () => {
+            if(eSwitch.checked) {
+                eOptions.classList.remove('hidden');
+                eSection.classList.replace('border-slate-200', 'border-red-400');
+                eSection.classList.add('bg-red-50');
+                eType.setAttribute('required', 'true');
+            } else {
+                eOptions.classList.add('hidden');
+                eSection.classList.replace('border-red-400', 'border-slate-200');
+                eSection.classList.remove('bg-red-50');
+                eType.removeAttribute('required');
+                eType.value = "Normal";
+            }
+        });
+    </script>
+</body>
+</html>

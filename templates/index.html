@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>MediQueue | Home</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        .hero-bg {
+            background:
+                linear-gradient(rgba(15, 23, 42, 0.75), rgba(15, 23, 42, 0.75)),
+                url('https://webprint.in/wp-content/uploads/2023/04/Queue-Management-System-or-Token-Generation-Software-scaled.jpg');
+
+            background-size: cover;
+            background-position: center;
+        }
+
+        .scanner-ring {
+            border: 4px solid #3b82f6;
+            animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulse-ring {
+            0%, 100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: .5;
+                transform: scale(1.05);
+            }
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+
+<body class="hero-bg min-h-screen flex flex-col items-center justify-center p-6 font-sans">
+
+    <!-- Main Home Card -->
+    <div class="max-w-md w-full bg-white/10 backdrop-blur-lg p-10 rounded-[3rem] shadow-2xl text-center border border-white/20">
+
+        <!-- Logo and Title -->
+        <div class="mb-8">
+
+            <div class="bg-blue-500 w-20 h-20 rounded-3xl mx-auto flex items-center justify-center shadow-lg mb-4">
+
+                <svg xmlns="http://www.w3.org/2000/svg"
+                     class="h-12 w-12 text-white"
+                     fill="none"
+                     viewBox="0 0 24 24"
+                     stroke="currentColor">
+
+                    <path stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M12 4v16m8-8H4" />
+
+                </svg>
+
+            </div>
+
+            <h1 class="text-4xl font-black text-white tracking-tight">
+                MediQueue
+            </h1>
+
+            <p class="text-blue-200 mt-2 font-medium">
+                Digital Hospital Check-in
+            </p>
+
+        </div>
+
+        <!-- QR Scan Button -->
+        <div class="relative py-12">
+
+            <div class="absolute inset-0 flex items-center justify-center">
+                <div class="w-48 h-48 scanner-ring rounded-full"></div>
+            </div>
+
+            <button onclick="openModal()"
+                    class="relative z-10 bg-white text-blue-600 hover:bg-blue-50 w-40 h-40 rounded-full flex flex-col items-center justify-center shadow-2xl transition-transform active:scale-90 border-4 border-blue-500">
+
+                <span class="text-4xl mb-2">
+                    📷
+                </span>
+
+                <span class="font-bold text-sm uppercase tracking-widest">
+                    Scan QR
+                </span>
+
+            </button>
+
+        </div>
+
+        <p class="text-white/60 text-xs mt-6 italic">
+            Click the button to view the check-in QR code
+        </p>
+
+        <!-- Doctor/Admin Login Button -->
+        <div class="mt-6">
+
+            <a href="/doctor_login">
+
+                <button class="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold shadow-lg hover:bg-blue-700 transition">
+                    Doctor / Admin Login
+                </button>
+
+            </a>
+
+        </div>
+
+    </div>
+
+    <!-- QR Modal -->
+    <div id="qrModal"
+         class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md">
+
+        <div class="bg-white p-8 rounded-[3rem] shadow-2xl text-center max-w-sm w-full mx-4 border-4 border-blue-500">
+
+            <h2 class="text-2xl font-black text-slate-800 mb-1">
+                Check-in Now
+            </h2>
+
+            <p class="text-slate-500 text-sm mb-6">
+                Scan this code at the reception
+            </p>
+
+            <div class="bg-slate-100 p-4 rounded-3xl mb-6 flex justify-center">
+
+                <img src="{{ url_for('static', filename='hospital_qr.png') }}"
+                     alt="QR Code"
+                     class="w-full h-auto rounded-xl shadow-inner">
+
+            </div>
+
+            <div class="flex flex-col gap-3">
+
+                <button onclick="closeModal()"
+                        class="text-slate-400 text-xs font-bold uppercase tracking-widest hover:text-slate-600">
+
+                    Go Back
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        function openModal() {
+            document.getElementById('qrModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('qrModal').classList.add('hidden');
+        }
+    </script>
+
+</body>
+
+</html>

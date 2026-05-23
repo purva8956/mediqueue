@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Hospital Analytics</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+</head>
+
+<body class="bg-slate-100 p-10 font-sans">
+
+    <h1 class="text-5xl font-black text-blue-700 mb-10">
+        📊 Hospital Analytics
+    </h1>
+
+    <!-- Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+
+        <div class="bg-white p-6 rounded-3xl shadow-lg">
+
+            <h2 class="text-xl text-slate-500">
+                Total Patients
+            </h2>
+
+            <p class="text-5xl font-black text-blue-700 mt-3">
+                {{ total_patients }}
+            </p>
+
+        </div>
+
+        <div class="bg-white p-6 rounded-3xl shadow-lg">
+
+            <h2 class="text-xl text-slate-500">
+                Most Busy Department
+            </h2>
+
+            <p class="text-3xl font-black text-red-600 mt-3">
+                {{ busiest_department }}
+            </p>
+
+        </div>
+
+    </div>
+
+    <!-- Charts -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+
+        <div class="bg-white p-6 rounded-3xl shadow-lg">
+
+            <h2 class="text-2xl font-bold mb-5">
+                Bar Graph
+            </h2>
+
+            <img src="{{ url_for('static', filename='bar_chart.png') }}">
+
+        </div>
+
+        <div class="bg-white p-6 rounded-3xl shadow-lg">
+
+            <h2 class="text-2xl font-bold mb-5">
+                Pie Chart
+            </h2>
+
+            <img src="{{ url_for('static', filename='pie_chart.png') }}">
+
+        </div>
+
+    </div>
+
+    <div class="mt-10">
+
+        <a href="/admin"
+           class="bg-blue-600 text-white px-6 py-3 rounded-2xl font-bold">
+            Back to Dashboard
+        </a>
+
+    </div>
+
+</body>
+
+</html>

@@ -1,0 +1,6 @@
+.venv/
+__pycache__/
+*.pyc
+hospital.db
+ngrok.exe
+.env

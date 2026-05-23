@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Live Queue | MediQueue</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+
+        body {
+
+            background:
+            linear-gradient(
+                rgba(18, 94, 194, 0.9),
+                rgba(32, 117, 220, 0.9)
+            ),
+            url('https://framerusercontent.com/images/h7TRs8bO5y34bh0lFe5Z9UMGLI.png');
+
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        .token-card {
+
+            background-color: rgba(255, 255, 255, 0.98);
+
+            backdrop-filter: blur(10px);
+        }
+
+        .live-dot {
+
+            width: 10px;
+            height: 10px;
+
+            background: #22c55e;
+
+            border-radius: 50%;
+
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            50% {
+                transform: scale(1.5);
+                opacity: 0.5;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+    </style>
+
+</head>
+
+<body class="min-h-screen flex items-center justify-center p-4"
+      style="font-family: 'Poppins', sans-serif;">
+
+    <div class="max-w-md w-full">
+
+        <!-- TOKEN CARD -->
+
+        <div class="token-card rounded-[3rem] shadow-2xl overflow-hidden border border-white">
+
+            <!-- TOP BANNER -->
+
+            <div class="
+                py-4 text-center
+
+                {% if is_emergency == 'Yes' %}
+                    bg-red-600
+                {% else %}
+                    bg-blue-600
+                {% endif %}
+            ">
+
+                <span class="text-white text-[11px] font-bold uppercase tracking-[0.25em]">
+
+{% if is_emergency == 'Yes' %}
+    PRIORITY EMERGENCY CASE
+{% else %}
+    TOKEN SUCCESSFULLY GENERATED
+{% endif %}
+
+                </span>
+
+            </div>
+
+            <!-- TOKEN -->
+
+            <div class="text-center py-10 px-6">
+
+                {% if is_emergency == 'Yes' %}
+
+                    <span class="
+                        bg-red-100
+                        text-red-600
+                        px-4
+                        py-2
+                        rounded-full
+                        text-xs
+                        font-bold
+                        uppercase
+                    ">
+
+                        🚨 Emergency Priority
+
+                    </span>
+
+                {% endif %}
+
+                <h1 class="text-7xl font-black text-slate-800 mt-5">
+                    {{ token }}
+                </h1>
+
+                <p class="
+                    text-blue-600
+                    font-bold
+                    uppercase
+                    tracking-widest
+                    text-sm
+                    mt-2
+                ">
+                    {{ dept }}
+                </p>
+
+            </div>
+
+            <!-- WAIT DETAILS -->
+
+            <div class="grid grid-cols-2 border-t border-slate-100">
+
+                <div class="p-6 text-center border-r border-slate-100">
+
+                    <p class="text-[10px] uppercase font-bold text-slate-400 mb-2">
+                        Estimated Wait
+                    </p>
+
+                    <p class="text-2xl font-black text-slate-800">
+
+                        {% if is_emergency == 'Yes' %}
+                            Immediate
+                        {% else %}
+                            {{ wait_time }} Mins
+                        {% endif %}
+
+                    </p>
+
+                </div>
+
+                <div class="p-6 text-center">
+
+                    <p class="text-[10px] uppercase font-bold text-slate-400 mb-2">
+                        Patients Ahead
+                    </p>
+
+                    <p class="text-2xl font-black text-slate-800">
+
+                        {% if is_emergency == 'Yes' %}
+                            NEXT
+                        {% else %}
+                            {{ ahead }}
+                        {% endif %}
+
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- LIVE STATUS -->
+
+        <div class="
+            bg-white/95
+            backdrop-blur-sm
+            rounded-[2rem]
+            p-6
+            shadow-xl
+            mt-5
+            border border-white
+        ">
+
+            <div class="flex items-center mb-5">
+
+                <div class="live-dot mr-3"></div>
+
+                <h2 class="
+                    text-sm
+                    font-black
+                    uppercase
+                    tracking-wider
+                    text-slate-800
+                ">
+                    Hospital Live Status
+                </h2>
+
+            </div>
+
+            <!-- GENERAL MEDICINE -->
+
+            <div class="
+                flex
+                justify-between
+                items-center
+                p-4
+                rounded-2xl
+                bg-blue-50
+                mb-3
+            ">
+
+                <span class="font-bold text-slate-700 text-sm">
+                    General Medicine
+                </span>
+
+                <span class="
+                    bg-white
+                    px-4
+                    py-2
+                    rounded-xl
+                    shadow
+                    text-blue-700
+                    font-black
+                    text-xs
+                ">
+
+                    NOW SERVING:
+                    {{ current_tokens['General Medicine'] }}
+
+                </span>
+
+            </div>
+
+            <!-- CARDIOLOGY -->
+
+            <div class="
+                flex
+                justify-between
+                items-center
+                p-4
+                rounded-2xl
+                bg-red-50
+                mb-3
+            ">
+
+                <span class="font-bold text-slate-700 text-sm">
+                    Cardiology
+                </span>
+
+                <span class="
+                    bg-white
+                    px-4
+                    py-2
+                    rounded-xl
+                    shadow
+                    text-red-600
+                    font-black
+                    text-xs
+                ">
+
+                    NOW SERVING:
+                    {{ current_tokens['Cardiology'] }}
+
+                </span>
+
+            </div>
+
+            <!-- PEDIATRICS -->
+
+            <div class="
+                flex
+                justify-between
+                items-center
+                p-4
+                rounded-2xl
+                bg-green-50
+                mb-3
+            ">
+
+                <span class="font-bold text-slate-700 text-sm">
+                    Pediatrics
+                </span>
+
+                <span class="
+                    bg-white
+                    px-4
+                    py-2
+                    rounded-xl
+                    shadow
+                    text-green-600
+                    font-black
+                    text-xs
+                ">
+
+                    NOW SERVING:
+                    {{ current_tokens['Pediatrics'] }}
+
+                </span>
+
+            </div>
+
+            <!-- ORTHOPEDIC -->
+
+            <div class="
+                flex
+                justify-between
+                items-center
+                p-4
+                rounded-2xl
+                bg-yellow-50
+                mb-3
+            ">
+
+                <span class="font-bold text-slate-700 text-sm">
+                    Orthopedic
+                </span>
+
+                <span class="
+                    bg-white
+                    px-4
+                    py-2
+                    rounded-xl
+                    shadow
+                    text-yellow-600
+                    font-black
+                    text-xs
+                ">
+
+                    NOW SERVING:
+                    {{ current_tokens['Orthopedic'] }}
+
+                </span>
+
+            </div>
+
+            <!-- ENT -->
+
+            <div class="
+                flex
+                justify-between
+                items-center
+                p-4
+                rounded-2xl
+                bg-purple-50
+            ">
+
+                <span class="font-bold text-slate-700 text-sm">
+                    ENT
+                </span>
+
+                <span class="
+                    bg-white
+                    px-4
+                    py-2
+                    rounded-xl
+                    shadow
+                    text-purple-600
+                    font-black
+                    text-xs
+                ">
+
+                    NOW SERVING:
+                    {{ current_tokens['ENT'] }}
+
+                </span>
+
+            </div>
+
+            <!-- BUTTONS -->
+
+            <div class="mt-6 space-y-3">
+
+                <button
+                    onclick="window.print()"
+                    class="
+                        w-full
+                        bg-slate-800
+                        text-white
+                        py-4
+                        rounded-2xl
+                        font-bold
+                        uppercase
+                        tracking-widest
+                        shadow-lg
+                        hover:bg-black
+                        transition
+                    ">
+
+                    🖨️ Print Token
+
+                </button>
+
+                <a href="/">
+
+                    <button class="
+                        w-full
+                        bg-red-500
+                        text-white
+                        py-4
+                        rounded-2xl
+                        font-bold
+                        shadow-lg
+                        hover:bg-red-600
+                        transition
+                    ">
+
+                        Finish & Exit
+
+                    </button>
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>
