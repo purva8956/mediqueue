@@ -17,7 +17,13 @@ DEPT_TIMES = {
     "ENT": 15
 }
 
-MAX_PATIENTS = 5
+MORNING_LIMITS = {
+    "General Medicine": 20,
+    "Cardiology": 10,
+    "Pediatrics": 15,
+    "Orthopedic": 12,
+    "ENT": 8
+}
 DEPARTMENT_PASSWORDS = {
     "General Medicine": "gen123",
     "Cardiology": "cardio123",
@@ -35,7 +41,7 @@ def get_current_slot():
         return "Morning"
 
     # Evening Slot
-    elif 16 <= current_hour < 24:
+    elif 16 <= current_hour < 22:
         return "Evening"
 
     # Closed Time
@@ -313,39 +319,47 @@ def registration(key):
 
         patient_count = cursor.fetchone()[0]
 
-        if patient_count >= MAX_PATIENTS:
-            conn.close()
+        department_limit = MORNING_LIMITS.get(p_dept, 10)
 
-            return f"""
-            <html>
-            <head>
-                <script src="https://cdn.tailwindcss.com"></script>
-            </head>
+        if current_slot == "Morning" and patient_count >= department_limit:
+           conn.close()
 
-            <body class="bg-slate-100 flex items-center justify-center min-h-screen">
+           return f"""
+          <html>
+    <head>
+        <script src="https://cdn.tailwindcss.com"></script>
+        </head>
 
-                <div class="bg-white p-8 rounded-3xl shadow-xl text-center max-w-md">
-                    <h1 class="text-2xl font-bold text-red-600 mb-4">
-                        Slot Full
-                    </h1>
+         <body class="bg-slate-100 flex items-center justify-center min-h-screen">
 
-                    <p class="text-slate-600 mb-5">
-                        Today's {current_slot} slot for <b>{p_dept}</b> is full.
-                    </p>
+        <div class="bg-white p-8 rounded-3xl shadow-xl text-center max-w-md">
 
-                    <p class="text-slate-500 mb-6">
-                        Please visit in the next available slot.
-                    </p>
+            <h1 class="text-2xl font-bold text-red-600 mb-4">
+                Morning Slot Full
+            </h1>
 
-                    <a href="/"
-                       class="bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold">
-                       Back to Home
-                    </a>
-                </div>
+            <p class="text-slate-600 mb-5">
+                Today's morning slot for <b>{p_dept}</b> is full.
+            </p>
 
-            </body>
-            </html>
-            """
+            <p class="text-slate-500 mb-4">
+                Maximum limit: <b>{department_limit}</b> patients
+            </p>
+
+            <p class="text-slate-500 mb-6">
+                Please visit in the evening slot: <b>4 PM - 12 AM</b>
+            </p>
+
+            <a href="/"
+               class="bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold">
+               Back to Home
+            </a>
+
+        </div>
+
+         </body>
+         </html>
+          """
 
 # ==============================
 # EMERGENCY + WAIT TIME LOGIC
