@@ -24,6 +24,14 @@ MORNING_LIMITS = {
     "Orthopedic": 12,
     "ENT": 8
 }
+EVENING_LIMITS = {
+    "General Medicine": 25,
+    "Cardiology": 2,
+    "Pediatrics": 18,
+    "Orthopedic": 15,
+    "ENT": 10
+}
+
 DEPARTMENT_PASSWORDS = {
     "General Medicine": "gen123",
     "Cardiology": "cardio123",
@@ -41,7 +49,7 @@ def get_current_slot():
         return "Morning"
 
     # Evening Slot
-    elif 16 <= current_hour < 22:
+    elif 16 <= current_hour < 24:
         return "Evening"
 
     # Closed Time
@@ -49,9 +57,8 @@ def get_current_slot():
         return "Closed"
 # 2. Database Setup
 def init_db():
-    conn = sqlite3.connect('hospital.db') # Connect to SQLite database (or create it if it doesn't exist)
-    cursor = conn.cursor() # Create a cursor object to execute SQL commands .it is a person handling files
-# hospital is like cupboard and sqlite3 is to open it
+    conn = sqlite3.connect('hospital.db') 
+    cursor = conn.cursor()
     cursor.execute('''
 CREATE TABLE IF NOT EXISTS patients (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -73,25 +80,27 @@ CREATE TABLE IF NOT EXISTS patients (
 init_db()
 
 # 3. Token Generation Logic
-def generate_token_id(dept):
+def generate_token_id(department):
 
-    prefixes = {
-        "General Medicine": "G",
-        "Cardiology": "C",
-        "Orthopedic": "O",
-        "Pediatrics": "P",
-        "ENT": "E"
-    }
-
-    prefix = prefixes.get(dept, "G")
+    department = department.strip()
 
     conn = sqlite3.connect('hospital.db')
     cursor = conn.cursor()
 
-    cursor.execute(
-        "SELECT COUNT(*) FROM patients WHERE department=?",
-        (dept,)
-    )
+    dept_prefix = {
+        "General Medicine": "G",
+        "Cardiology": "C",
+        "Pediatrics": "P",
+        "Orthopedic": "O",
+        "ENT": "E"
+    }
+
+    prefix = dept_prefix.get(department, "X")
+
+    cursor.execute("""
+        SELECT COUNT(*) FROM patients
+        WHERE department=?
+    """, (department,))
 
     count = cursor.fetchone()[0]
 
@@ -252,6 +261,7 @@ def registration(key):
     cursor.execute("""
         SELECT token FROM patients
         WHERE lower(name)=lower(?)
+                   
         AND age=?
         AND department=?
         AND visit_date=?
@@ -319,9 +329,14 @@ def registration(key):
 
         patient_count = cursor.fetchone()[0]
 
-        department_limit = MORNING_LIMITS.get(p_dept, 10)
+        if current_slot == "Morning":
+             department_limit = MORNING_LIMITS.get(p_dept, 10)
+        elif current_slot == "Evening":
+             department_limit = EVENING_LIMITS.get(p_dept, 10)
+        else:
+              department_limit = 0
 
-        if current_slot == "Morning" and patient_count >= department_limit:
+        if current_slot in ["Morning", "Evening"] and patient_count >= department_limit:
            conn.close()
 
            return f"""
@@ -335,11 +350,11 @@ def registration(key):
         <div class="bg-white p-8 rounded-3xl shadow-xl text-center max-w-md">
 
             <h1 class="text-2xl font-bold text-red-600 mb-4">
-                Morning Slot Full
+                {current_slot} Slot Full
             </h1>
 
             <p class="text-slate-600 mb-5">
-                Today's morning slot for <b>{p_dept}</b> is full.
+                Today's {current_slot.lower()} slot for <b>{p_dept}</b> is full. for <b>{p_dept}</b> is full.
             </p>
 
             <p class="text-slate-500 mb-4">
@@ -431,15 +446,17 @@ def token_page():
     wait_time = request.args.get('wait_time')
     ahead = request.args.get('ahead')
     msg = request.args.get('msg')
-    dept = request.args.get('dept')
+    patient_dept = request.args.get('dept')
     name = request.args.get('name')
-    is_emergency = msg.startswith("PRIORITY") if msg else False
+
+    is_emergency = "Yes" if msg and msg.startswith("PRIORITY") else "No"
+
     conn = sqlite3.connect('hospital.db')
     cursor = conn.cursor()
 
     current_tokens = {}
 
-    for dept in DEPT_TIMES.keys():
+    for department in DEPT_TIMES.keys():
 
         cursor.execute("""
             SELECT token FROM patients
@@ -447,14 +464,14 @@ def token_page():
             AND status='Called'
             ORDER BY id DESC
             LIMIT 1
-        """, (dept,))
+        """, (department,))
 
         result = cursor.fetchone()
 
         if result:
-            current_tokens[dept] = result[0]
+            current_tokens[department] = result[0]
         else:
-            current_tokens[dept] = "Waiting..."
+            current_tokens[department] = "Waiting..."
 
     conn.close()
 
@@ -464,7 +481,7 @@ def token_page():
         wait_time=wait_time,
         ahead=ahead,
         msg=msg,
-        dept=dept,
+        dept=patient_dept,
         name=name,
         current_tokens=current_tokens,
         is_emergency=is_emergency
@@ -637,13 +654,8 @@ def admin_panel():
         {count}
     </p>
 
-    <a href="/call_next/{dept}"
-       class="mt-3 inline-block bg-green-600 text-white px-4 py-2 rounded-xl font-bold hover:bg-green-700">
-       Call Next
-    </a>
-
-    </div>
-        """
+</div>
+    """
 # ==============================
 # CURRENT SERVING TOKENS
 # ==============================
@@ -782,7 +794,11 @@ tr:hover {{
 
         <!-- Buttons -->
         <div class="mt-8 flex gap-5">
-
+ 
+        <a href="/doctor_login"
+   class="bg-green-600 text-white px-6 py-3 rounded-2xl font-bold shadow-lg hover:bg-green-700">
+   Doctor Login
+</a>
             <a href="/clear"
                class="bg-red-600 text-white px-6 py-3 rounded-2xl font-bold shadow-lg hover:bg-red-700">
                Clear History
@@ -905,6 +921,7 @@ def department_dashboard(dept):
     return f"""
     <html>
     <head>
+        <meta http-equiv="refresh" content="5">
         <title>{dept} Dashboard</title>
         <script src="https://cdn.tailwindcss.com"></script>
 
@@ -937,7 +954,9 @@ def department_dashboard(dept):
         <h1 class="text-4xl font-black text-slate-800 mb-8">
             {dept} Doctor Dashboard
         </h1>
-
+          <p class="text-sm text-slate-500 mb-4">
+    Auto-refreshing every 5 seconds
+</p>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
 
             <div class="bg-white p-6 rounded-3xl shadow-xl">
@@ -1009,7 +1028,150 @@ def department_dashboard(dept):
     </body>
     </html>
     """
+#---------------
+#check token
+#---------------
+@app.route('/check_token', methods=['GET', 'POST'])
+def check_token():
 
+    if request.method == 'POST':
+
+        token = (request.form.get('token') or '').strip().upper()
+
+        conn = sqlite3.connect('hospital.db')
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT name, department, status
+            FROM patients
+            WHERE token=?
+        """, (token,))
+
+        patient = cursor.fetchone()
+
+        conn.close()
+
+        if patient:
+            name, department, status = patient
+
+            return f"""
+            <html>
+            <head>
+                <script src="https://cdn.tailwindcss.com"></script>
+            </head>
+
+            <body class="bg-slate-100 min-h-screen flex items-center justify-center">
+
+                <div class="bg-white p-8 rounded-3xl shadow-xl text-center max-w-md">
+
+                    <h1 class="text-3xl font-black text-slate-800 mb-4">
+                        Token Status
+                    </h1>
+
+                    <p class="text-xl font-bold text-blue-600 mb-4">
+                        {token}
+                    </p>
+
+                    <p><b>Name:</b> {name}</p>
+                    <p><b>Department:</b> {department}</p>
+                    <p><b>Status:</b> {status}</p>
+
+                    <br>
+
+                    <a href="/"
+                       class="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold">
+                       Home
+                    </a>
+
+                </div>
+
+            </body>
+            </html>
+            """
+
+        return """
+        <h2 style="text-align:center; margin-top:100px;">
+            Token not found.
+            <br><br>
+            <a href="/check_token">Try Again</a>
+        </h2>
+        """
+
+    return """
+    <html>
+    <head>
+        <script src="https://cdn.tailwindcss.com"></script>
+    </head>
+
+    <body class="bg-slate-100 min-h-screen flex items-center justify-center">
+
+        <div class="bg-white p-8 rounded-3xl shadow-xl max-w-md w-full">
+
+            <h1 class="text-3xl font-black text-slate-800 mb-5 text-center">
+                Check Token Status
+            </h1>
+
+            <form method="POST">
+
+                <input type="text"
+                       name="token"
+                       placeholder="Enter token e.g. G-101"
+                       class="w-full p-4 border rounded-xl mb-5"
+                       required>
+
+                <button type="submit"
+                        class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold">
+                    Check Status
+                </button>
+
+            </form>
+
+            <a href="/"
+               class="block text-center mt-5 text-blue-600 font-semibold">
+               Back to Home
+            </a>
+
+        </div>
+
+    </body>
+    </html>
+    """
+
+@app.route('/admin_login', methods=['GET', 'POST'])
+def admin_login():
+
+    if request.method == 'POST':
+        password = request.form.get('password')
+
+        if password == "admin123":
+            return redirect('/admin')
+
+        return "<h2>Wrong Password</h2><a href='/admin_login'>Try Again</a>"
+
+    return """
+    <html>
+    <head><script src="https://cdn.tailwindcss.com"></script></head>
+    <body class="bg-slate-100 min-h-screen flex items-center justify-center">
+        <div class="bg-white p-8 rounded-3xl shadow-xl max-w-md w-full">
+            <h1 class="text-3xl font-black mb-5 text-center">Admin Login</h1>
+
+            <form method="POST">
+                <input type="password" name="password"
+                       placeholder="Enter admin password"
+                       class="w-full p-4 border rounded-xl mb-5" required>
+
+                <button class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold">
+                    Login
+                </button>
+            </form>
+
+            <a href="/" class="block text-center mt-5 text-blue-600 font-semibold">
+                Back to Home
+            </a>
+        </div>
+    </body>
+    </html>
+    """
 #clear the admin panel
 @app.route('/clear', methods=['GET', 'POST'])
 def clear_database():
@@ -1104,3 +1266,4 @@ if __name__ == '__main__':
         port=5000,
         debug=True
     )
+    
