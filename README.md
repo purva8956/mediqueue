@@ -1,16 +1,18 @@
 # MediQueue - Smart Hospital Queue Management System
 
-MediQueue is a QR-based smart hospital queue management system built using Flask, SQLite, Pandas, and Matplotlib.
+MediQueue is a QR-based smart hospital queue management system developed using Flask and SQLite. It helps hospitals manage OPD queues digitally, generate tokens automatically, prioritize emergency patients, and provide department-wise doctor dashboards.
 
 ## Features
 - QR-based patient registration
-- Automatic token generation
-- Emergency patient priority
-- Estimated waiting time
-- Doctor login dashboard
-- Department-wise patient queue
+- Automatic department-wise token generation
+- Emergency patient priority handling
+- Estimated waiting time calculation
+- Duplicate patient registration prevention
+- Morning and evening slot limits
+- Department-wise doctor login
 - Call Next Patient system
-- Admin analytics dashboard
+- Admin dashboard with analytics
+- Token status checking
 
 ## Technologies Used
 - Python
@@ -20,6 +22,7 @@ MediQueue is a QR-based smart hospital queue management system built using Flask
 - Tailwind CSS
 - Pandas
 - Matplotlib
+- PyWebView
 
 ## How to Run
 
